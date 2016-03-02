@@ -2,13 +2,13 @@ angular.module('starter.controllers', [])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout, $http, $ionicLoading) {
     // Setup the loader
-    //$ionicLoading.show({
-    //  content: 'Loading',
-    //  animation: 'fade-in',
-    //  showBackdrop: true,
-    //  maxWidth: 200,
-    //  showDelay: 0
-    //});
+    $ionicLoading.show({
+      content: 'Loading',
+      animation: 'fade-in',
+      showBackdrop: true,
+      maxWidth: 200,
+      showDelay: 0
+    });
 
     // Form data for the login modal
     $scope.loginData = {};
@@ -266,7 +266,7 @@ angular.module('starter.controllers', [])
   //});
 
 
-}) 
+})
 
 .controller('PlaylistsCtrl', function($scope) {
   $scope.playlists = [
