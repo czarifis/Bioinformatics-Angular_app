@@ -2,13 +2,7 @@ angular.module('starter.controllers', [])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout, $http, $ionicLoading) {
     // Setup the loader
-    $ionicLoading.show({
-      content: 'Loading',
-      animation: 'fade-in',
-      showBackdrop: true,
-      maxWidth: 200,
-      showDelay: 0
-    });
+
 
     // Form data for the login modal
     $scope.loginData = {};
@@ -32,7 +26,7 @@ angular.module('starter.controllers', [])
 
     // Perform the login action when the user submits the login form
     $scope.doLogin = function() {
-      console.log('Doing login', $scope.loginData);
+      //console.log('Doing login', $scope.loginData);
 
       // Simulate a login delay. Remove this and replace with your login
       // code if using a login system
@@ -53,6 +47,8 @@ angular.module('starter.controllers', [])
       $(function () {
 
 
+        //console.log('dataset');
+        //console.log(dataset);
 
         //
         //dataset = {  series: [{
@@ -129,7 +125,15 @@ angular.module('starter.controllers', [])
             enabled: true
           },
           xAxis: {
-            type: 'linear'
+            type: 'linear',
+            title: {
+              text: 'Alignment Index'
+            }
+          },
+          yAxis: {
+            title: {
+              text: 'm/z Value'
+            }
           },
           rangeSelector: {
             selected: 1,
@@ -231,30 +235,68 @@ angular.module('starter.controllers', [])
 
     $scope.doLogin();
 
+    var query = {
+      "selector": {
+        "timestamp": {
+          "$gt": 0
+        }
+      },
+      "fields": [
+        "_id",
+        "_rev",
+        "timestamp"
+      ],
+      "sort": [
+        {
+          "timestamp": "desc"
+        }
+      ]
+    };
 
-    //https://czarifis.cloudant.com/bioinformatics/_all_docs
-    $http.get("https://czarifis.cloudant.com/bioinformatics/_all_docs")
-      .then(function(response) {
-        //$scope.myWelcome = response.data;
-        console.log(response);
-        $scope.alignments = response.data.rows;
-        $http.get("https://czarifis.cloudant.com/bioinformatics/myID")
-          .then(function(response) {
-            //$scope.myWelcome = response.data;
-            console.log(response);
-            create_highcharts(response.data.dataset);
-            $ionicLoading.hide();
-            //$scope.alignments = response.data.rows
-          });
+    $scope.refreshAlignments = function() {
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
       });
+      //https://czarifis.cloudant.com/bioinformatics/_all_docs
+      $http.post("https://czarifis.cloudant.com/bioinformatics/_find", query)
+        .then(function (response) {
+          //$scope.myWelcome = response.data;
+          //console.log('find',response);
+          //console.log('find first doc:', response.data.docs[1]._id);
+          $scope.alignments = response.data.docs;
+          $http.get("https://czarifis.cloudant.com/bioinformatics/" + response.data.docs[0]._id)
+            .then(function (response) {
+              //$scope.myWelcome = response.data;
+              //console.log(response);
+              create_highcharts(response.data);
+              $ionicLoading.hide();
+              //$scope.alignments = response.data.rows
+            });
+        });
+    };
+
+    $scope.refreshAlignments();
 
 
     $scope.get_document = function(alignment) {
-      console.log('getting:', alignment);
-      $http.get("https://czarifis.cloudant.com/bioinformatics/b2840c9e6cb32b0d20b45888ffcb8185")
+      //console.log('getting:', alignment);
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $http.get("https://czarifis.cloudant.com/bioinformatics/"+alignment._id)
         .then(function(response) {
           //$scope.myWelcome = response.data;
-          console.log(response);
+          //console.log(response);
+          create_highcharts(response.data);
+          $ionicLoading.hide();
           //$scope.alignments = response.data.rows
         });
     };
